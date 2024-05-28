@@ -1,10 +1,16 @@
+import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { FloatingIcon } from "@/components/navigation/FloatingIcon";
+import { useTheme } from "@/context/theme";
+
 import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
 	const insets = useSafeAreaInsets();
+
+	const theme = useTheme().currentTheme;
 
 	return (
 		<ThemedView
@@ -18,10 +24,17 @@ export default function HomeScreen() {
 				paddingRight: insets.right,
 			}}
 		>
-			<ThemedText>Edit app/(tabs)/index.tsx to edit this screen.</ThemedText>
-			<Link href="/Settings" style={{ marginTop: 15, paddingVertical: 15 }}>
-				<ThemedText type="link">Go to settings!</ThemedText>
-			</Link>
+			<ThemedView
+				style={{
+					alignItems: "flex-end",
+					width: "100%",
+					paddingRight: "4%",
+				}}
+			>
+				<Link href="/Settings" style={{ marginTop: 15, paddingVertical: 15 }}>
+					<FloatingIcon name={"ellipsis-vertical"} color={theme.icon}/>
+				</Link>
+			</ThemedView>
 		</ThemedView>
 	);
 }

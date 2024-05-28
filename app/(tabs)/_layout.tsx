@@ -2,24 +2,21 @@ import { Tabs } from "expo-router";
 import React from "react";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
-import { View, useColorScheme } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
+import { useTheme } from "@/context/theme";
+
 
 export default function TabLayout() {
-	const colorScheme = useColorScheme();
+
+	const theme = useTheme().currentTheme;
 
 	return (
 		<Tabs
 			screenOptions={{
-				tabBarActiveTintColor:
-					colorScheme === "light" ? Colors.light.tint : Colors.dark.tint,
+				tabBarActiveTintColor: theme.tint,
 				headerShown: false,
 				tabBarStyle: {
-					backgroundColor:
-						colorScheme === "light"
-							? Colors.light.foreground
-							: Colors.dark.foreground,
+					borderColor: theme.foreground,
+					backgroundColor: theme.foreground,
 				},
 				tabBarHideOnKeyboard: true,
 			}}
@@ -27,12 +24,21 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="index"
 				options={{
-					title: "Home",
+					title: "Mail",
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon
-							name={focused ? "home" : "home-outline"}
+							name={focused ? "mail" : "mail-outline"}
 							color={color}
 						/>
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="Video"
+				options={{
+					title: "Movies & Shows",
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon name={focused ? "tv" : "tv-outline"} color={color} />
 					),
 				}}
 			/>

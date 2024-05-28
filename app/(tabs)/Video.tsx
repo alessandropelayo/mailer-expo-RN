@@ -1,14 +1,10 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useTheme } from "@/context/theme";
-import { Button } from "react-native";
+import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function SettingsScreen() {
+export default function HomeScreen() {
 	const insets = useSafeAreaInsets();
-
-	const theme = useTheme().currentTheme;
-	const toggleTheme = useTheme().toggleTheme;
 
 	return (
 		<ThemedView
@@ -22,12 +18,7 @@ export default function SettingsScreen() {
 				paddingRight: insets.right,
 			}}
 		>
-			<ThemedText>Settings</ThemedText>
-			<Button
-				onPress={toggleTheme}
-				title={`Switch to Mode`}
-				color={theme.link}
-			/>
+			<ThemedText>Videos</ThemedText>
 		</ThemedView>
 	);
 }
