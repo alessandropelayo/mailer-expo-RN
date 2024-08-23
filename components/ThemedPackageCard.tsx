@@ -183,7 +183,7 @@ const ThemedPackageCard = ({
 						</TouchableOpacity>
 						{packageData.deliveryPhoto?.[0]?.fileLocation && (
 							<Modal
-								transparent={true}
+								transparent={false}
 								visible={isModalVisible}
 								onRequestClose={closeModal}
 							>
@@ -191,6 +191,7 @@ const ThemedPackageCard = ({
 									onPress={closeModal}
 									style={{
 										backgroundColor: useTheme().currentTheme.foreground,
+										zIndex: 1,
 									}}
 								>
 									<ThemedIcons
@@ -207,6 +208,7 @@ const ThemedPackageCard = ({
 									}`}
 									style={{
 										backgroundColor: useTheme().currentTheme.foreground,
+										overflow: "scroll",
 									}}
 								></ZoomableImage>
 							</Modal>
