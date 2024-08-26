@@ -18,7 +18,7 @@ export default function HomeScreen() {
 				paddingRight: insets.right,
 			}}
 		>
-			<ThemedText>Videos</ThemedText>
+			<ThemedText>Hi</ThemedText>
 		</ThemedView>
 	);
 }

@@ -1,3 +1,4 @@
+import { Image, ImageProps } from "expo-image";
 import React, { useState } from "react";
 import { StyleSheet, useWindowDimensions, ViewProps } from "react-native";
 import {
@@ -6,186 +7,119 @@ import {
 	GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import Animated, {
-	Easing,
-	ReduceMotion,
 	useAnimatedStyle,
 	useSharedValue,
-	withSpring,
-	withTiming,
+	clamp,
 } from "react-native-reanimated";
-import { ThemedView } from "./ThemedView";
 
-export type ZoomableImageProps = ViewProps & {
-	uri: string;
-};
+export type ZoomableImageProps = ImageProps & {};
 
-const ZoomableImage = ({ style, uri, ...otherProps }: ZoomableImageProps) => {
-	const translateX = useSharedValue(0);
-	const translateY = useSharedValue(0);
+const AnimatedExpoImage = Animated.createAnimatedComponent(Image);
+
+// Use library for image viewing :)
+const ZoomableImage = ({
+	style,
+	source,
+	...otherProps
+}: ZoomableImageProps) => {
+	const offset = useSharedValue({ x: 0, y: 0 });
+	const start = useSharedValue({ x: 0, y: 0 });
 	const scale = useSharedValue(1);
-	const pinchScale = useSharedValue(1);
+	const savedScale = useSharedValue(1);
 	const [imageLayout, setImageLayout] = useState({ width: 0, height: 0 });
 	const windowDimensions = useWindowDimensions();
 
-	const clampTranslate = (value: number, max: number) => {
-		"worklet";
-		return Math.max(Math.min(value, max), -max);
-	};
+	const MIN_SCALE = 1;
+	const MAX_SCALE = 4;
 
-	const doubleTap = Gesture.Tap()
-		.numberOfTaps(2)
-		.onStart((event) => {
-			const targetScale = scale.value === 1 ? 3 : 1;
-
-			const tapX = event.x;
-			const tapY = event.y;
-
-			// Calculate the new translateX and translateY to center the tapped point
-			const centerX = windowDimensions.width / 2;
-			const centerY = windowDimensions.height / 2;
-
-			const offsetX = (centerX - tapX) * (targetScale / scale.value);
-			const offsetY = (centerY - tapY) * (targetScale / scale.value);
-
-			const newTranslateX = translateX.value + offsetX;
-			const newTranslateY = translateY.value + offsetY;
-
-			// translateX.value = withTiming(0, { duration: 100 });
-			// translateY.value = withTiming(0, { duration: 100 });
-			scale.value = withTiming(targetScale, {
-				duration: 300,
-				easing: Easing.linear,
-				reduceMotion: ReduceMotion.System,
-			});
-			const scaledWidth = imageLayout.width * targetScale;
-			const scaledHeight = imageLayout.height * targetScale;
-			const maxTranslateX = Math.max(
-				(scaledWidth - windowDimensions.width) / 2,
-				0
-			);
-			const maxTranslateY = Math.max(
-				(scaledHeight - windowDimensions.height) / 2,
-				0
-			);
-
-			translateX.value = withTiming(
-				clampTranslate(newTranslateX, maxTranslateX),
-				{
-					duration: 300,
-					easing: Easing.linear,
-					reduceMotion: ReduceMotion.System,
-				}
-			);
-			translateY.value = withTiming(
-				clampTranslate(newTranslateY, maxTranslateY),
-				{
-					duration: 300,
-					easing: Easing.linear,
-					reduceMotion: ReduceMotion.System,
-				}
-			);
-		});
-
-	const drag = Gesture.Pan().onChange((event) => {
-		const scaledWidth = imageLayout.width * scale.value;
-		const scaledHeight = imageLayout.height * scale.value;
-
-		const clampedX = Math.max(
-			Math.min(
-				translateX.value + event.changeX,
-				Math.max((scaledWidth - windowDimensions.width) / 2, 0)
-			),
-			Math.min(-(scaledWidth - windowDimensions.width) / 2, 0)
-		);
-		const clampedY = Math.max(
-			Math.min(
-				translateY.value + event.changeY,
-				Math.max((scaledHeight - windowDimensions.height) / 2, 0)
-			),
-			Math.min(-(scaledHeight - windowDimensions.height) / 2, 0)
-		);
-
-		translateX.value = clampedX;
-		translateY.value = clampedY;
-	});
-
-	const pinch = Gesture.Pinch().onChange((event) => {
-		pinchScale.value = event.scale;
-		const targetScale = scale.value * pinchScale.value;
-
-		// Clamp the final scale to ensure it doesn't go below 1
-		const finalScale = Math.max(1, targetScale);
-
-		// Calculate the new scaled width and height of the image
-		const scaledWidth = imageLayout.width * finalScale;
-		const scaledHeight = imageLayout.height * finalScale;
-
-		// Calculate the maximum translation values to ensure the image stays within bounds
-		const maxTranslateX = Math.max(
-			(scaledWidth - windowDimensions.width) / 2,
-			0
-		);
-		const maxTranslateY = Math.max(
-			(scaledHeight - windowDimensions.height) / 2,
-			0
-		);
-
-		// Calculate the center point of the pinch gesture
-		const centerX = windowDimensions.width / 2;
-		const centerY = windowDimensions.height / 2;
-
-		// Calculate the offsets needed to keep the pinch focus point in place
-		const offsetX = (centerX - event.focalX) * (targetScale / scale.value);
-		const offsetY = (centerY - event.focalY) * (targetScale / scale.value);
-
-		// Calculate the new translation values
-		const newTranslateX = translateX.value + offsetX;
-		const newTranslateY = translateY.value + offsetY;
-
-		// Clamp the translation values to ensure the image stays within bounds
-		translateX.value = withTiming(
-			clampTranslate(newTranslateX, maxTranslateX),
-			{
-				duration: 300,
-				easing: Easing.linear,
-				reduceMotion: ReduceMotion.System,
-			}
-		);
-		translateY.value = withTiming(
-			clampTranslate(newTranslateY, maxTranslateY),
-			{
-				duration: 300,
-				easing: Easing.linear,
-				reduceMotion: ReduceMotion.System,
-			}
-		);
-
-		// Animate the scale change
-		scale.value = withTiming(finalScale, {
-			duration: 300,
-			easing: Easing.linear,
-			reduceMotion: ReduceMotion.System,
-		});
-
-		// Reset the pinch scale value
-		pinchScale.value = 1;
-	});
-
-	const containerStyle = useAnimatedStyle(() => {
+	const animatedStyles = useAnimatedStyle(() => {
 		return {
 			transform: [
-				{
-					translateX: translateX.value,
-				},
-				{
-					translateY: translateY.value,
-				},
-				{
-					scale: scale.value,
-				},
+				{ translateX: offset.value.x },
+
+				{ translateY: offset.value.y },
+
+				{ scale: scale.value },
 			],
 		};
 	});
+
+	const dragGesture = Gesture.Pan()
+
+		.averageTouches(true)
+
+		.onUpdate((e) => {
+			const scaledWidth = imageLayout.width * scale.value;
+			const scaledHeight = imageLayout.height * scale.value;
+			const clampedX = Math.max(
+				Math.min(
+					e.translationX + start.value.x,
+					Math.max((scaledWidth - windowDimensions.width) / 2, 0)
+				),
+				Math.min(-(scaledWidth - windowDimensions.width) / 2, 0)
+			);
+			const clampedY = Math.max(
+				Math.min(
+					e.translationY + start.value.y,
+					Math.max((scaledHeight - windowDimensions.height) / 2, 0)
+				),
+				Math.min(-(scaledHeight - windowDimensions.height) / 2, 0)
+			);
+			offset.value = {
+				x: clampedX,
+
+				y: clampedY,
+			};
+		})
+
+		.onEnd(() => {
+			start.value = {
+				x: offset.value.x,
+
+				y: offset.value.y,
+			};
+		});
+
+	const zoomGesture = Gesture.Pinch()
+
+		.onUpdate((e) => {
+			const newScale = clamp(savedScale.value * e.scale, MIN_SCALE, MAX_SCALE);
+
+			const scaledWidth = imageLayout.width * scale.value;
+			const scaledHeight = imageLayout.height * scale.value;
+			const clampedX = Math.max(
+				Math.min(
+					start.value.x,
+					Math.max((scaledWidth - windowDimensions.width) / 2, 0)
+				),
+				Math.min(-(scaledWidth - windowDimensions.width) / 2, 0)
+			);
+			const clampedY = Math.max(
+				Math.min(
+					start.value.y,
+					Math.max((scaledHeight - windowDimensions.height) / 2, 0)
+				),
+				Math.min(-(scaledHeight - windowDimensions.height) / 2, 0)
+			);
+			offset.value = {
+				x: clampedX,
+
+				y: clampedY,
+			};
+
+			scale.value = newScale;
+		})
+
+		.onEnd(() => {
+			savedScale.value = scale.value;
+			start.value = {
+				x: offset.value.x,
+
+				y: offset.value.y,
+			};
+		});
+
+	const composed = Gesture.Simultaneous(dragGesture, zoomGesture);
 
 	const onImageLayout = (event: {
 		nativeEvent: { layout: { width: any; height: any } };
@@ -193,24 +127,22 @@ const ZoomableImage = ({ style, uri, ...otherProps }: ZoomableImageProps) => {
 		const { width, height } = event.nativeEvent.layout;
 		setImageLayout({ width, height });
 	};
+
 	return (
 		<GestureHandlerRootView style={styles.mainContainer}>
-			<Animated.View style={[containerStyle]}>
-				<GestureDetector gesture={Gesture.Race(pinch, drag)}>
-					<GestureDetector gesture={doubleTap}>
-						<Animated.View
-							style={[styles.imageContainer, style]}
-							collapsable={true}
-						>
-							<Animated.Image
-								style={[styles.pinchableImage]}
-								source={{ uri }}
-								onLayout={onImageLayout}
-							/>
-						</Animated.View>
-					</GestureDetector>
-				</GestureDetector>
-			</Animated.View>
+			<GestureDetector gesture={composed}>
+				<Animated.View
+					style={[styles.imageContainer, style]}
+					collapsable={true}
+					{...otherProps}
+				>
+					<AnimatedExpoImage
+						style={[styles.pinchableImage, animatedStyles]}
+						source={source}
+						onLayout={onImageLayout}
+					></AnimatedExpoImage>
+				</Animated.View>
+			</GestureDetector>
 		</GestureHandlerRootView>
 	);
 };
@@ -224,13 +156,14 @@ const styles = StyleSheet.create({
 		height: "100%",
 	},
 	imageContainer: {
-		backgroundColor: "black",
+		flex: 1,
 		justifyContent: "center",
-		overflow: "scroll",
+		alignItems: "center",
+		overflow: "hidden",
 	},
 	pinchableImage: {
 		width: "100%",
 		height: "100%",
-		resizeMode: "contain",
+		contentFit: "contain",
 	},
 });

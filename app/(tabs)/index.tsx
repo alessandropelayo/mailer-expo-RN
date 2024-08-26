@@ -29,11 +29,18 @@ export default function HomeScreen() {
 				style={{
 					alignItems: "flex-end",
 					width: "100%",
-					paddingRight: "4%",
+					paddingRight: "1%",
 					flexDirection: "column",
 				}}
 			>
-				<Link href="/Settings" style={{ marginTop: 15, paddingVertical: 15 }}>
+				<Link
+					href="/Settings"
+					style={{
+						marginTop: 15,
+						paddingVertical: 15,
+						paddingHorizontal: 15,
+					}}
+				>
 					<FloatingIcon name={"ellipsis-vertical"} color={theme.icon} />
 				</Link>
 			</ThemedView>

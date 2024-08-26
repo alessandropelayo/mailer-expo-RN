@@ -2,6 +2,8 @@ import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import ThemeContent, { useTheme } from "@/context/theme";
 import * as SystemUI from "expo-system-ui";
+import { useEffect } from "react";
+import i18n from "@/hooks/localization";
 
 export default function RootLayout() {
 	return (
@@ -16,6 +18,8 @@ export default function RootLayout() {
 function RootStack() {
 	const theme = useTheme().currentTheme;
 	SystemUI.setBackgroundColorAsync(theme.background);
+
+	useEffect(() => {}, [i18n.locale]);
 
 	return (
 		<Stack
@@ -32,7 +36,7 @@ function RootStack() {
 		>
 			<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 			<Stack.Screen
-				name="Settings"
+				name={"Settings"}
 				options={{ headerShown: true, navigationBarColor: theme.background }}
 			/>
 			<Stack.Screen name="+not-found" />

@@ -1,28 +1,14 @@
-import {
-	ActivityIndicator,
-	FlatList,
-	RefreshControl,
-	Image,
-	type ViewProps,
-	TouchableOpacity,
-	View,
-} from "react-native";
+import { FlatList, type ViewProps, View } from "react-native";
 
 import { ThemedView } from "./ThemedView";
-import {
-	JSXElementConstructor,
-	ReactElement,
-	ReactNode,
-	ReactPortal,
-	useEffect,
-	useState,
-} from "react";
+
 import { useTheme } from "@/context/theme";
-import { getRecentPackagesHomePage } from "@/utils/packageAPI";
+
 import { ThemedText } from "./ThemedText";
-import ThemedPackageCard from "./ThemedPackageCard";
+
 import { Package } from "@/types/interfaces/interfaces";
-import { ShippingCarrier } from "@/types/enums/enums";
+
+import i18n from "@/hooks/localization";
 
 export type RecentPackagesProps = ViewProps & {
 	packageData: Package;
@@ -60,27 +46,45 @@ export function ThemedPackageExpand({
 				)}
 				{packageData.statusHistory?.[0]?.status && (
 					<ThemedText type="default">
-						Status: {packageData.statusHistory[0].status}
+						{i18n.t("status")}
+						{": "}
+						{i18n.t(packageData.statusHistory[0].status)}
 					</ThemedText>
 				)}
 				{packageData?.from && (
-					<ThemedText type="default">From: {packageData.from}</ThemedText>
+					<ThemedText type="default">
+						{i18n.t("from")}
+						{": "}
+						{packageData.from}
+					</ThemedText>
 				)}
 				{packageData.statusHistory?.[0]?.statusTime && (
 					<ThemedText type="default">
-						Last Updated:{" "}
-						{statusTimeFormat.toLocaleString("en-US", {
+						{i18n.t("last updated")}
+						{": "}
+						{statusTimeFormat.toLocaleString(i18n.locale, {
 							month: "short",
 							day: "numeric",
 							year: "numeric",
 							hour: "numeric",
 							minute: "2-digit",
+							hour12: true,
 						})}
 					</ThemedText>
 				)}
 				{packageData.statusHistory?.[0]?.deliveryDate && (
 					<ThemedText type="default">
-						Delivery Date: {deliveryDateFormat.toDateString()}
+						{i18n.t("delivery date")}
+						{": "}
+						{deliveryDateFormat.toLocaleString(i18n.locale, {
+							weekday: "short",
+							month: "short",
+							day: "numeric",
+							year: "numeric",
+							hour: "numeric",
+							minute: "2-digit",
+							hour12: true,
+						})}
 					</ThemedText>
 				)}
 			</ThemedView>
@@ -96,16 +100,49 @@ export function ThemedPackageExpand({
 					renderItem={({ item, index }) => (
 						<View
 							style={{
-								paddingLeft: "10%",
+								paddingLeft: "5%",
 							}}
 						>
-							<ThemedText type="default">Status: {item.status}</ThemedText>
-							<ThemedText type="default">
-								Status Time: {new Date(item.statusTime).toLocaleString()}
-							</ThemedText>
-							<ThemedText type="default">
-								Delivery Date: {new Date(item.deliveryDate).toLocaleString()}
-							</ThemedText>
+							<View
+								style={{
+									flexDirection: "row",
+								}}
+							>
+								<ThemedText style={{}} type="default">
+									{"" + (index + 1)}
+								</ThemedText>
+								<View style={{ paddingLeft: "5%" }}>
+									<ThemedText style={{}} type="default">
+										{i18n.t("status")}
+										{": "}
+										{i18n.t(item.status)}
+									</ThemedText>
+									<ThemedText style={{}} type="default">
+										{i18n.t("status time")}
+										{": "}
+										{new Date(item.statusTime).toLocaleString(i18n.locale, {
+											month: "numeric",
+											day: "numeric",
+											year: "numeric",
+											hour: "numeric",
+											minute: "2-digit",
+											hour12: true,
+										})}
+									</ThemedText>
+									<ThemedText style={{}} type="default">
+										{i18n.t("delivery date")}
+										{": "}
+										{new Date(item.deliveryDate).toLocaleString(i18n.locale, {
+											month: "numeric",
+											day: "numeric",
+											year: "numeric",
+											hour: "numeric",
+											minute: "2-digit",
+											hour12: true,
+										})}
+									</ThemedText>
+								</View>
+							</View>
 						</View>
 					)}
 					ItemSeparatorComponent={() => (

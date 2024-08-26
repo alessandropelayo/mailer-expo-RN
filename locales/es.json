@@ -1,0 +1,18 @@
+{
+	"language": "Idioma",
+	"settings": "Ajustes",
+	"last updated": "Último cambio",
+	"delivery date": "Fecha de entrega",
+	"status": "Estado",
+	"status time": "Tiempo de estado",
+	"from": "Desde",
+	"mail": "Correo",
+	"change language alert": "Reiniciar aplicación",
+	"change language alert message": "Es posible que algunos elementos no se hayan actualizado.",
+	"API KEY": "CLAVE de API",
+	"Pending": "Pendiente",
+	"Shipped": "Enviado",
+	"OutForDelivery": "Fuera para entrega",
+	"Delivered": "Entregado",
+	"Returned": "Devuelto"
+}

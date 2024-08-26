@@ -1,6 +1,5 @@
 import axios from "axios";
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
-import * as SecureStore from "expo-secure-store";
 
 interface Package {
 	trackingId: string;
@@ -18,7 +17,8 @@ interface Package {
 
 async function getValueFor(key: string) {
 	try {
-		let result = await SecureStore.getItemAsync(key);
+		let result = localStorage.getItem(key);
+
 		if (result) {
 			return result;
 		} else {

@@ -12,6 +12,8 @@ import { ThemedText } from "./ThemedText";
 import ThemedPackageCard from "./ThemedPackageCard";
 import { Package } from "@/types/interfaces/interfaces";
 import { ShippingCarrier } from "@/types/enums/enums";
+import i18n from "@/hooks/localization";
+import { getValueFor } from "@/hooks/accessStorage";
 
 export type RecentPackagesProps = ViewProps & {};
 
@@ -22,6 +24,7 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 	const [after, setAfter] = useState(String);
 	const [count, setCount] = useState(0);
 	const [limit, setLimit] = useState(10);
+	const [API_KEY, setAPI_KEY] = useState("");
 
 	const fetchData = () => {
 		if (hasMore) {
@@ -38,6 +41,9 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 
 				if (response.length < limit) {
 					setHasMore(false);
+				}
+				if (response.length === 0) {
+					return;
 				}
 
 				setPackages((prevPackages) => [...prevPackages, ...response]);
@@ -77,13 +83,20 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 		if (hasMore) return <ActivityIndicator size={"large"} color={"white"} />;
 		return (
 			<ThemedView>
-				<ThemedText>End of Messages</ThemedText>
+				<ThemedText>End</ThemedText>
 			</ThemedView>
 		);
 	};
 
+	const getAPI_KEY = async () => {
+		const data = (await getValueFor("API_KEY")) || "";
+		setAPI_KEY((prevState) => data);
+	};
+
+
 	useEffect(() => {
 		fetchData();
+		getAPI_KEY();
 	}, []);
 
 	if (isLoading) {
@@ -121,7 +134,7 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 						>
 							{new Date(
 								item?.statusHistory?.[0]?.statusTime
-							).toLocaleDateString("en-US", {
+							).toLocaleDateString(i18n.locale, {
 								month: "long",
 								day: "numeric",
 								year: "numeric",
@@ -134,6 +147,7 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 						style={{
 							justifyContent: "flex-start",
 						}}
+						API_KEY={API_KEY}
 					/>
 				</ThemedView>
 			)}

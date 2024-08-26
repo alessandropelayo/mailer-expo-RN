@@ -1,32 +1,35 @@
 import {
 	ViewProps,
 	StyleSheet,
-	Image,
-	Animated,
 	TouchableOpacity,
 	Modal,
 	TouchableHighlight,
+	View,
+	ActivityIndicator,
 } from "react-native";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import { useTheme } from "@/context/theme";
-import { getTimeSince } from "@/utils/timeSince";
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Package } from "@/types/interfaces/interfaces";
-import { Link } from "expo-router";
 import { ThemedPackageExpand } from "./ThemedPackageExpand";
 import ZoomableImage from "./ZoomableImage";
 import { ThemedIcons } from "./ThemedIcons";
+import i18n from "@/hooks/localization";
+import { Image } from "expo-image";
+import { getValueFor } from "@/hooks/accessStorage";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export type ThemedCardProps = ViewProps & {
 	packageData: Package;
+	API_KEY: string;
 };
 
 const ThemedPackageCard = ({
 	style,
 	packageData,
+	API_KEY,
 	...otherProps
 }: ThemedCardProps) => {
 	const [isVisible, setIsVisible] = useState(true);
@@ -75,17 +78,24 @@ const ThemedPackageCard = ({
 			contentCarrier = styles.default;
 	}
 
+	//Handle bug when rapidly double pressing in the modal
+	const [isPackagePressEnabled, setIsPackagePressEnabled] = useState(true);
+
 	const handlePackagePress = () => {
-		setIsVisible((prevState) => !prevState);
+		if (isPackagePressEnabled) {
+			setIsVisible((prevState) => !prevState);
+		}
 	};
 	const [isModalVisible, setIsModalVisible] = useState(false);
 
 	const openModal = () => {
+		setIsPackagePressEnabled(false);
 		setIsModalVisible(true);
 	};
 
 	const closeModal = () => {
 		setIsModalVisible(false);
+		setIsPackagePressEnabled(true);
 	};
 
 	return (
@@ -119,7 +129,7 @@ const ThemedPackageCard = ({
 				>
 					<Image
 						source={carrierImage}
-						resizeMode="contain"
+						contentFit="contain"
 						style={{ width: 50, height: 50 }}
 					></Image>
 				</ThemedView>
@@ -143,33 +153,57 @@ const ThemedPackageCard = ({
 							justifyContent: "flex-start",
 						}}
 					>
+						{packageData?.from && (
+							<ThemedText
+								style={{ paddingLeft: "5%", flexWrap: "wrap" }}
+								type="defaultSemiBold"
+							>
+								{i18n.t("from")}
+								{": "}
+								{packageData.from}
+							</ThemedText>
+						)}
 						{packageData.statusHistory?.[0]?.status && (
 							<ThemedText style={{ paddingLeft: "5%" }} type="defaultSemiBold">
-								Status: {packageData.statusHistory[0].status}
+								{i18n.t("status")}
+								{": "}
+								{i18n.t(packageData.statusHistory[0].status)}
 							</ThemedText>
 						)}
 
 						{packageData.statusHistory?.[0]?.statusTime && (
 							<ThemedText style={{ paddingLeft: "5%" }} type="default">
-								Last Updated:{" "}
-								{statusTimeFormat.toLocaleString("en-US", {
+								{i18n.t("last updated")}
+								{": "}
+								{statusTimeFormat.toLocaleString(i18n.locale, {
 									month: "short",
 									day: "numeric",
 									year: "numeric",
 									hour: "numeric",
 									minute: "2-digit",
+									hour12: true,
 								})}
 							</ThemedText>
 						)}
 						{packageData.statusHistory?.[0]?.deliveryDate && (
 							<ThemedText style={{ paddingLeft: "5%" }}>
-								Delivery Date: {deliveryDateFormat.toDateString()}
+								{i18n.t("delivery date")}
+								{": "}
+								{deliveryDateFormat.toLocaleString(i18n.locale, {
+									weekday: "short",
+									month: "short",
+									day: "numeric",
+									year: "numeric",
+									hour: "numeric",
+									minute: "2-digit",
+									hour12: true,
+								})}
 							</ThemedText>
 						)}
 						<TouchableOpacity onPress={openModal} style={{ paddingLeft: "5%" }}>
 							{packageData.deliveryPhoto?.[0]?.fileLocation && (
 								<Image
-									resizeMode="contain"
+									contentFit="contain"
 									style={{ width: 300, height: 150, alignSelf: "center" }}
 									source={{
 										uri: `${
@@ -177,6 +211,9 @@ const ThemedPackageCard = ({
 											"/packages/file/get?fileLocation=" +
 											packageData.deliveryPhoto[0].fileLocation
 										}`,
+										headers: {
+											API_KEY: "" + API_KEY,
+										},
 									}}
 								></Image>
 							)}
@@ -187,30 +224,42 @@ const ThemedPackageCard = ({
 								visible={isModalVisible}
 								onRequestClose={closeModal}
 							>
-								<TouchableHighlight
-									onPress={closeModal}
+								<View
 									style={{
-										backgroundColor: useTheme().currentTheme.foreground,
-										zIndex: 1,
+										width: "100%",
+										height: "100%",
 									}}
 								>
-									<ThemedIcons
-										iconName={"arrow-back"}
-										size={"10%"}
-									></ThemedIcons>
-								</TouchableHighlight>
+									<TouchableHighlight
+										onPress={closeModal}
+										style={{
+											backgroundColor: useTheme().currentTheme.foreground,
+											zIndex: 1,
+										}}
+									>
+										<ThemedIcons
+											iconName={"arrow-back"}
+											size={"10%"}
+										></ThemedIcons>
+									</TouchableHighlight>
 
-								<ZoomableImage
-									uri={`${
-										API_URL +
-										"/packages/file/get?fileLocation=" +
-										packageData.deliveryPhoto[0].fileLocation
-									}`}
-									style={{
-										backgroundColor: useTheme().currentTheme.foreground,
-										overflow: "scroll",
-									}}
-								></ZoomableImage>
+									<ZoomableImage
+										source={{
+											uri: `${
+												API_URL +
+												"/packages/file/get?fileLocation=" +
+												packageData.deliveryPhoto[0].fileLocation
+											}`,
+											headers: {
+												API_KEY: "" + API_KEY,
+											},
+										}}
+										contentFit="contain"
+										style={{
+											backgroundColor: useTheme().currentTheme.foreground,
+										}}
+									></ZoomableImage>
+								</View>
 							</Modal>
 						)}
 					</ThemedView>
@@ -221,44 +270,5 @@ const ThemedPackageCard = ({
 		</ThemedView>
 	);
 };
-{
-	/* {(!(packageData.carrier === "USPS_Daily") && (
-						<ThemedText
-							style={{
-								color: "#ECEDEE",
-							}}
-							type="subtitle"
-						>
-							{packageData.trackingId}
-						</ThemedText>
-					)) || (
-						<ThemedText
-							style={{
-								color: "#ECEDEE",
-							}}
-							type="subtitle"
-						>
-							{statusTimeFormat.toLocaleDateString()}
-						</ThemedText>
-					)} */
-}
-{
-	/* <ThemedText
-						style={{
-							color: "#ECEDEE",
-						}}
-						type="subtitle"
-					>
-						{statusTimeFormat.toLocaleDateString()}
-					</ThemedText>
-					<ThemedText
-						style={{
-							color: "#ECEDEE",
-						}}
-						type="subtitle"
-					>
-						{getTimeSince(statusTimeFormat.getTime())}
-					</ThemedText> */
-}
 
 export default memo(ThemedPackageCard);

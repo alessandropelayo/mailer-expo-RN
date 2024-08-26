@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
 import { ImageStyle, TextStyle, ViewStyle, useColorScheme } from "react-native";
-import * as SecureStore from "expo-secure-store";
 
 export type Theme = { [key: string]: ViewStyle | TextStyle | ImageStyle };
 
@@ -34,7 +33,8 @@ const darkTheme = {
 
 async function save(key: string, value: string) {
 	try {
-		await SecureStore.setItemAsync(key, value);
+		//await SecureStore.setItemAsync(key, value);
+		localStorage.setItem(key, value);
 	} catch (error) {
 		console.log(error);
 	}
@@ -42,7 +42,10 @@ async function save(key: string, value: string) {
 
 async function getValueFor(key: string, userPreferedTheme: string) {
 	try {
-		let result = await SecureStore.getItemAsync(key);
+		//let result = await SecureStore.getItemAsync(key);
+		let result = localStorage.getItem(key);
+		//console.log("RUNNING THEME:", result);
+
 		if (result) {
 			return result;
 		} else {
@@ -60,6 +63,8 @@ export default function ThemeContent({ children }: { children: any }) {
 		getValueFor("theme", theme).then((value) =>
 			setTheme((value as "light") || "dark")
 		);
+	//getTheme();
+
 	useEffect(() => {
 		getTheme();
 	});

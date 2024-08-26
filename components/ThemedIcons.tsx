@@ -1,13 +1,7 @@
 import { useTheme } from "@/context/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import {
-	Dimensions,
-	StyleProp,
-	TextStyle,
-	ViewProps,
-	ViewStyle,
-} from "react-native";
+import { Dimensions, ViewProps } from "react-native";
 
 export type ThemedIconsProps = ViewProps & {
 	iconName: keyof typeof MaterialIcons.glyphMap;
@@ -24,7 +18,7 @@ export const ThemedIcons = ({
 	const resolvedSize =
 		typeof size === "string" && size.endsWith("%")
 			? (Dimensions.get("window").width * parseFloat(size)) / 100
-			: size as number;
+			: (size as number);
 	return (
 		<MaterialIcons
 			name={iconName}

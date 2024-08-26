@@ -3,6 +3,7 @@ import React from "react";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useTheme } from "@/context/theme";
+import i18n from "@/hooks/localization";
 
 
 export default function TabLayout() {
@@ -24,7 +25,7 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="index"
 				options={{
-					title: "Mail",
+					title: i18n.t("mail"),
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon
 							name={focused ? "mail" : "mail-outline"}
@@ -36,7 +37,7 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="Video"
 				options={{
-					title: "Movies & Shows",
+					title: "Calendar",
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon name={focused ? "tv" : "tv-outline"} color={color} />
 					),

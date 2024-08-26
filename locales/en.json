@@ -1,0 +1,18 @@
+{
+	"language": "Language",
+	"settings": "Settings",
+	"last updated": "Last Updated",
+	"delivery date": "Delivery Date",
+	"status": "Status",
+	"status time": "Status Time",
+	"from": "From",
+	"mail": "Mail",
+	"change language alert": "Restart App",
+	"change language alert message": "Some elements may not have updated",
+	"API KEY": "API KEY",
+	"Pending": "Pending",
+	"Shipped": "Shipped",
+	"OutForDelivery": "Out For Delivery",
+	"Delivered": "Delivered",
+	"Returned": "Returned"
+}
