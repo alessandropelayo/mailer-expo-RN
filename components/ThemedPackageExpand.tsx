@@ -101,6 +101,7 @@ export function ThemedPackageExpand({
 						<View
 							style={{
 								paddingLeft: "5%",
+								paddingBottom: 5,
 							}}
 						>
 							<View

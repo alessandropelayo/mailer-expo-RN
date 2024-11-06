@@ -130,16 +130,16 @@ const ZoomableImage = ({
 
 	return (
 		<GestureHandlerRootView style={styles.mainContainer}>
-			<GestureDetector gesture={composed}>
+			<GestureDetector gesture={composed} touchAction="auto">
 				<Animated.View
 					style={[styles.imageContainer, style]}
 					collapsable={true}
-					{...otherProps}
 				>
 					<AnimatedExpoImage
 						style={[styles.pinchableImage, animatedStyles]}
 						source={source}
 						onLayout={onImageLayout}
+						{...otherProps}
 					></AnimatedExpoImage>
 				</Animated.View>
 			</GestureDetector>
@@ -164,6 +164,5 @@ const styles = StyleSheet.create({
 	pinchableImage: {
 		width: "100%",
 		height: "100%",
-		contentFit: "contain",
 	},
 });

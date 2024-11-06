@@ -40,7 +40,7 @@ export default function SettingsScreen() {
 
 	async function save(key: string, value: string) {
 		try {
-            localStorage.setItem(key, value)
+			localStorage.setItem(key, value);
 		} catch (error) {
 			console.log(error);
 		}
@@ -126,7 +126,9 @@ export default function SettingsScreen() {
 							height: 40,
 							width: 40,
 						}}
-                        onTouchEnd={toggleSwitch}
+						onValueChange={() => {
+							setIsCheckMark((previousState) => !previousState);
+						}}
 						value={isEnabled}
 					></Switch>
 				</ThemedView>

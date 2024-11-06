@@ -1,7 +1,9 @@
 import {
 	ActivityIndicator,
 	FlatList,
+	Modal,
 	RefreshControl,
+	View,
 	type ViewProps,
 } from "react-native";
 
@@ -14,6 +16,7 @@ import { Package } from "@/types/interfaces/interfaces";
 import { ShippingCarrier } from "@/types/enums/enums";
 import i18n from "@/hooks/localization";
 import { getValueFor } from "@/hooks/accessStorage";
+import ZoomableImage from "./ZoomableImage";
 
 export type RecentPackagesProps = ViewProps & {};
 
@@ -58,7 +61,7 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 				setIsLoading(false);
 			})
 			.catch((error) => {
-				setIsLoading(false);
+				setIsLoading(true);
 				console.error("Error: ", error);
 			});
 	};
@@ -92,7 +95,6 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 		const data = (await getValueFor("API_KEY")) || "";
 		setAPI_KEY((prevState) => data);
 	};
-
 
 	useEffect(() => {
 		fetchData();

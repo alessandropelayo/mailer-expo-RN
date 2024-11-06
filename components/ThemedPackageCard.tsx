@@ -239,7 +239,7 @@ const ThemedPackageCard = ({
 									>
 										<ThemedIcons
 											iconName={"arrow-back"}
-											size={"10%"}
+											size={40}
 										></ThemedIcons>
 									</TouchableHighlight>
 
