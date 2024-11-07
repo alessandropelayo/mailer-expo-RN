@@ -15,6 +15,7 @@ This project is a mobile front-end built with React Native using the Expo framew
    ```
 
 2. Create a .env at the top folder level
+   
    Expects: 
    ```bash
    EXPO_PUBLIC_API_URL=yourUrlHere
