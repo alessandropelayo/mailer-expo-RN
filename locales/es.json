@@ -14,5 +14,9 @@
 	"Shipped": "Enviado",
 	"OutForDelivery": "Fuera para entrega",
 	"Delivered": "Entregado",
-	"Returned": "Devuelto"
+	"Returned": "Devuelto",
+	"register": "Registro de Cuenta",
+	"email": "Correo Electrónico",
+	"password": "Contraseña",
+	"already have an account? sign in": "¿Ya tienes una cuenta? Iniciar sesión"
 }

@@ -4,6 +4,7 @@ import ThemeContent, { useTheme } from "@/context/theme";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import i18n from "@/hooks/localization";
+import { ThemedView } from "@/components/ThemedView";
 
 export default function RootLayout() {
 	return (
@@ -32,9 +33,12 @@ function RootStack() {
 				},
 				headerTintColor: theme.tint,
 				navigationBarColor: theme.foreground,
+				contentStyle: { backgroundColor: theme.background },
 			}}
 		>
+			<Stack.Screen name="index" options={{ headerShown: false }} />
 			<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+			<Stack.Screen name="(auth)" options={{ headerShown: false }} />
 			<Stack.Screen
 				name={"Settings"}
 				options={{ headerShown: true, navigationBarColor: theme.background }}

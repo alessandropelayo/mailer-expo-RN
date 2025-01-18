@@ -5,9 +5,7 @@ import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useTheme } from "@/context/theme";
 import i18n from "@/hooks/localization";
 
-
 export default function TabLayout() {
-
 	const theme = useTheme().currentTheme;
 
 	return (
@@ -23,7 +21,7 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
-				name="index"
+				name="Home"
 				options={{
 					title: i18n.t("mail"),
 					tabBarIcon: ({ color, focused }) => (
@@ -35,11 +33,11 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="Video"
+				name="Profile"
 				options={{
-					title: "Calendar",
+					title: "Profile",
 					tabBarIcon: ({ color, focused }) => (
-						<TabBarIcon name={focused ? "tv" : "tv-outline"} color={color} />
+						<TabBarIcon name={focused ? "person-circle" : "person-circle-outline"} color={color} />
 					),
 				}}
 			/>

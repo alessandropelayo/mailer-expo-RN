@@ -18,6 +18,7 @@ import { ThemedIcons } from "./ThemedIcons";
 import i18n from "@/hooks/localization";
 import { Image } from "expo-image";
 import { getValueFor } from "@/hooks/accessStorage";
+import { AuthImage } from "./AuthImage";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -64,7 +65,7 @@ const ThemedPackageCard = ({
 	switch (packageData.carrier) {
 		case "USPS":
 			contentCarrier = styles.USPSCard;
-			carrierImage = require("@/assets/images/USPS.jpg");
+			carrierImage = require("@/assets/images/usps.jpg");
 			break;
 		case "USPS_Daily":
 			contentCarrier = styles.USPS_DailyCard;
@@ -72,7 +73,7 @@ const ThemedPackageCard = ({
 			break;
 		case "UPS":
 			contentCarrier = styles.UPSCard;
-			carrierImage = require("@/assets/images/UPS.jpg");
+			carrierImage = require("@/assets/images/ups.jpg");
 			break;
 		default:
 			contentCarrier = styles.default;
@@ -202,20 +203,11 @@ const ThemedPackageCard = ({
 						)}
 						<TouchableOpacity onPress={openModal} style={{ paddingLeft: "5%" }}>
 							{packageData.deliveryPhoto?.[0]?.fileLocation && (
-								<Image
-									contentFit="contain"
+								<AuthImage
 									style={{ width: 300, height: 150, alignSelf: "center" }}
-									source={{
-										uri: `${
-											API_URL +
-											"/packages/file/get?fileLocation=" +
-											packageData.deliveryPhoto[0].fileLocation
-										}`,
-										headers: {
-											API_KEY: "" + API_KEY,
-										},
-									}}
-								></Image>
+									resizeMode="contain"
+									imageLocation={packageData.deliveryPhoto[0].fileLocation}
+								></AuthImage>
 							)}
 						</TouchableOpacity>
 						{packageData.deliveryPhoto?.[0]?.fileLocation && (

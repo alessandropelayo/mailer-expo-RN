@@ -1,6 +1,7 @@
 import axios from "axios";
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 import * as SecureStore from "expo-secure-store";
+import { api } from "@/utils/axios";
 
 interface Package {
 	trackingId: string;
@@ -35,58 +36,52 @@ const getRecentPackagesHomePage = async (
 	limit?: number,
 	after?: string
 ): Promise<Package[]> => {
-	return new Promise((resolve, reject) => {
-		getValueFor("API_KEY").then((data) => {
-			let API_KEY = data;
-
-			axios({
-				method: "get",
-				url: API_URL + "/packages/home",
-				params: {
-					count: count,
-					limit: limit,
-					after: after,
-				},
-				headers: {
-					API_KEY: API_KEY,
-				},
-			})
-				.then((res) => {
-					resolve(res.data);
-				})
-				.catch((err) => {
-					console.log(err);
-
-					reject(err);
-				});
+	try {
+		const response = await api.get("/packages/home", {
+			params: {
+				count,
+				limit,
+				after,
+			},
 		});
-	});
+		return response.data;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 };
 
-const loadImage = async (imgLocation: string) => {
-	return new Promise((resolve, reject) => {
-		getValueFor("API_KEY").then((data) => {
-			let API_KEY = data;
-			axios({
-				method: "get",
-				url: API_URL + "/packages/file/get",
-				params: {
-					fileLocation: imgLocation,
-				},
-				headers: {
-					API_KEY: API_KEY,
-				},
-			})
-				.then((res) => {
-					resolve(res.data);
-				})
-				.catch((err) => {
-					console.log(err);
-
-					reject(err);
-				});
+const loadImage = async (imgLocation: string): Promise<any> => {
+	try {
+		const response = await api.get("/packages/file/get", {
+			params: { fileLocation: imgLocation },
 		});
-	});
+		return response.data;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 };
 
-export { getRecentPackagesHomePage, loadImage };
+const loadHeaders = async () => {
+	try {
+		const [accessToken, refreshToken] = await Promise.all([
+			SecureStore.getItemAsync("accessToken"),
+			SecureStore.getItemAsync("refreshToken"),
+		]);
+
+		const newHeaders: { [key: string]: string } = {};
+		if (accessToken) {
+			newHeaders["Authorization"] = `Bearer ${accessToken}`;
+		}
+		if (refreshToken) {
+			newHeaders["Cookie"] = `refreshToken=${refreshToken}`;
+		}
+
+		return newHeaders;
+	} catch (error) {
+		console.error("Error loading auth headers:", error);
+	}
+};
+
+export { getRecentPackagesHomePage, loadImage, loadHeaders };

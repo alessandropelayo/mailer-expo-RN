@@ -14,5 +14,9 @@
 	"Shipped": "Shipped",
 	"OutForDelivery": "Out For Delivery",
 	"Delivered": "Delivered",
-	"Returned": "Returned"
+	"Returned": "Returned",
+	"register": "Register",
+	"email": "Email",
+	"password": "Password",
+	"already have an account? sign in": "Already have an account? Sign In"
 }
