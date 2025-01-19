@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { User } from '../types/auth';
+const COOKIE_KEY = 'refreshToken';
 
 export const useAuth = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -25,5 +26,18 @@ export const useAuth = () => {
         }
     };
 
-    return { isLoading, user, checkAuth };
+    const logout = async () => {
+        try {
+            // Clear stored tokens
+            await SecureStore.deleteItemAsync('accessToken');
+            await SecureStore.deleteItemAsync(COOKIE_KEY);
+            
+            // Trigger navigation to login screen
+
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+    };
+
+    return { isLoading, user, checkAuth, logout };
 };

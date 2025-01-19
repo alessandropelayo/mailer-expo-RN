@@ -3,11 +3,9 @@ import { ThemedView } from "@/components/ThemedView";
 import { useTheme } from "@/context/theme";
 import {
 	Alert,
-	Button,
 	FlatList,
 	Keyboard,
 	Switch,
-	TextInput,
 	TouchableOpacity,
 	TouchableWithoutFeedback,
 } from "react-native";
@@ -67,20 +65,10 @@ export default function SettingsScreen() {
 		}
 	};
 
-	const [text, onChangeText] = useState("");
-	const [isCheckMark, setIsCheckMark] = useState(false);
-	const selectTextBox = () => {
-		setIsCheckMark((previousState) => !previousState);
-	};
-	const enterApiKey = () => {
-		save("API_KEY", text);
-	};
-
 	return (
 		<TouchableWithoutFeedback
 			onPress={() => {
 				Keyboard.dismiss();
-				setIsCheckMark(false);
 			}}
 			accessible={false}
 		>
@@ -140,40 +128,6 @@ export default function SettingsScreen() {
 					</ThemedView>
 				</TouchableOpacity>
 
-				<ThemedView
-					style={{
-						paddingTop: "5%",
-						flexDirection: "row",
-						alignItems: "center",
-					}}
-				>
-					<ThemedText type="subtitle" style={{ paddingRight: "2%" }}>
-						{i18n.t("API KEY")}
-					</ThemedText>
-					<TextInput
-						style={{
-							height: 40,
-							width: 110,
-							borderTopWidth: 2,
-							borderColor: useTheme().currentTheme.tint,
-							borderBottomWidth: 2,
-							color: useTheme().currentTheme.text,
-						}}
-						onChangeText={onChangeText}
-						value={text}
-						onFocus={selectTextBox}
-					></TextInput>
-					{isCheckMark && (
-						<TouchableOpacity onPress={enterApiKey}>
-							<ThemedIcons
-								style={{ paddingLeft: "5%" }}
-								iconName={"check"}
-								size={40}
-							></ThemedIcons>
-						</TouchableOpacity>
-					)}
-				</ThemedView>
-
 				<TouchableOpacity onPress={selectLanguage} style={{ paddingTop: "5%" }}>
 					<ThemedView
 						style={{
@@ -196,7 +150,10 @@ export default function SettingsScreen() {
 					<FlatList
 						data={locales}
 						renderItem={({ item }) => (
-							<TouchableOpacity onPress={() => handleLocaleChange(item)}>
+							<TouchableOpacity
+								style={{ paddingTop: 10 }}
+								onPress={() => handleLocaleChange(item)}
+							>
 								<ThemedView
 									style={{
 										flexDirection: "column",

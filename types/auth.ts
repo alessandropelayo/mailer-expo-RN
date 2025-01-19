@@ -2,6 +2,8 @@ export type Role = "USER" | "ADMIN" | "MODERATOR";
 
 export type AccessLevel = "NO_ACCESS" | "BASIC" | "ADVANCED" | "FULL_ACCESS";
 
+export type AccessRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
+
 export interface User {
     id?: string,
     email?: string,
