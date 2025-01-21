@@ -16,85 +16,90 @@ export interface AccessRequestsListRef {
 	refreshRequests: () => void;
 }
 
-export const AccessRequestsList = forwardRef<AccessRequestsListRef>(
-	(_, ref) => {
-		const [requests, setRequests] = useState<AccessRequest[]>([]);
-		const [isLoading, setIsLoading] = useState(true);
-		const [error, setError] = useState("");
+export interface AccessRequestsListProps {
+	onRequestsUpdate?: (requests: AccessRequest[]) => void;
+}
 
-		const fetchRequests = async () => {
-			setIsLoading(true);
-			setError("");
-			try {
-				const response = await api.get<AccessRequest[]>("/access/my-requests");
-				setRequests(response.data);
-			} catch (err) {
-				if (axios.isAxiosError(err)) {
-					setError(err.response?.data?.message || "Failed to load requests");
-				} else {
-					setError("An unexpected error occurred");
-					console.error(err);
-				}
-			} finally {
-				setIsLoading(false);
+export const AccessRequestsList = forwardRef<
+	AccessRequestsListRef,
+	AccessRequestsListProps
+>(({ onRequestsUpdate }, ref) => {
+	const [requests, setRequests] = useState<AccessRequest[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState("");
+
+	const fetchRequests = async () => {
+		setIsLoading(true);
+		setError("");
+		try {
+			const response = await api.get<AccessRequest[]>("/access/my-requests");
+			setRequests(response.data);
+			onRequestsUpdate?.(response.data);
+		} catch (err) {
+			if (axios.isAxiosError(err)) {
+				setError(err.response?.data?.message || "Failed to load requests");
+			} else {
+				setError("An unexpected error occurred");
+				console.error(err);
 			}
-		};
-
-		useEffect(() => {
-			fetchRequests();
-		}, []);
-
-		// Expose the fetchRequests function to the parent via ref
-		useImperativeHandle(ref, () => ({
-			refreshRequests: fetchRequests,
-		}));
-
-		if (isLoading) {
-			return (
-				<ThemedView style={styles.centerContainer}>
-					<ActivityIndicator size="large" />
-				</ThemedView>
-			);
+		} finally {
+			setIsLoading(false);
 		}
+	};
 
-		if (error) {
-			return (
-				<ThemedView style={styles.centerContainer}>
-					<ThemedText style={styles.errorText}>{error}</ThemedText>
-				</ThemedView>
-			);
-		}
+	useEffect(() => {
+		fetchRequests();
+	}, []);
 
-		if (requests.length === 0) {
-			return (
-				<ThemedView style={styles.centerContainer}>
-					<ThemedText style={styles.noDataText}>
-						No access requests found
-					</ThemedText>
-				</ThemedView>
-			);
-		}
+	useImperativeHandle(ref, () => ({
+		refreshRequests: fetchRequests,
+	}));
 
-		const handleRemoveRequest = (id: string) => {
-			setRequests((prevRequests) =>
-				prevRequests.filter((req) => req.id !== id)
-			);
-		};
-
+	if (isLoading) {
 		return (
-			<FlatList
-				data={requests}
-				keyExtractor={(item) => item.id}
-				renderItem={({ item }) => (
-					<AccessRequestCard request={item} onRemove={handleRemoveRequest} />
-				)}
-				contentContainerStyle={styles.listContainer}
-				refreshing={isLoading}
-				onRefresh={fetchRequests}
-			/>
+			<ThemedView style={styles.centerContainer}>
+				<ActivityIndicator size="large" />
+			</ThemedView>
 		);
 	}
-);
+
+	if (error) {
+		return (
+			<ThemedView style={styles.centerContainer}>
+				<ThemedText style={styles.errorText}>{error}</ThemedText>
+			</ThemedView>
+		);
+	}
+
+	if (requests.length === 0) {
+		return (
+			<ThemedView style={styles.centerContainer}>
+				<ThemedText style={styles.noDataText}>
+					No access requests found
+				</ThemedText>
+			</ThemedView>
+		);
+	}
+
+	const handleRemoveRequest = (id: string) => {
+		const updatedRequests = requests.filter((req) => req.id !== id);
+		setRequests(updatedRequests);
+		onRequestsUpdate?.(updatedRequests);
+	};
+
+	return (
+		<FlatList
+			data={requests}
+			keyExtractor={(item) => item.id}
+			renderItem={({ item }) => (
+				<AccessRequestCard request={item} onRemove={handleRemoveRequest} />
+			)}
+			contentContainerStyle={styles.listContainer}
+			refreshing={isLoading}
+			onRefresh={fetchRequests}
+		/>
+	);
+});
 
 const styles = StyleSheet.create({
 	centerContainer: {

@@ -24,13 +24,11 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export type ThemedCardProps = ViewProps & {
 	packageData: Package;
-	API_KEY: string;
 };
 
 const ThemedPackageCard = ({
 	style,
 	packageData,
-	API_KEY,
 	...otherProps
 }: ThemedCardProps) => {
 	const [isVisible, setIsVisible] = useState(true);
@@ -242,9 +240,6 @@ const ThemedPackageCard = ({
 												"/packages/file/get?fileLocation=" +
 												packageData.deliveryPhoto[0].fileLocation
 											}`,
-											headers: {
-												API_KEY: "" + API_KEY,
-											},
 										}}
 										contentFit="contain"
 										style={{

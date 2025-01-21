@@ -23,10 +23,14 @@ export default function Register() {
 				password,
 			});
 			await storeAuthData(response.data);
+
+			await api.post<AuthResponse>("/access/request", {
+				requestedLevel: "BASIC",
+			});
 			router.replace("/(tabs)/Home");
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
-				console.log(error.response?.data)
+				console.log(error.response?.data);
 				setError(error.response?.data?.message || "An error occurred");
 			} else {
 				setError("An unexpected error occurred");
@@ -37,7 +41,9 @@ export default function Register() {
 
 	return (
 		<View style={[styles.container, { backgroundColor: theme.background }]}>
-			<Text style={[styles.title, { color: theme.text }]}>{i18n.t("register")}</Text>
+			<Text style={[styles.title, { color: theme.text }]}>
+				{i18n.t("register")}
+			</Text>
 
 			{error ? (
 				<Text style={[styles.error, { color: "red" }]}>{error}</Text>
@@ -62,7 +68,9 @@ export default function Register() {
 				style={[styles.button, { backgroundColor: theme.foreground }]}
 				onPress={handleRegister}
 			>
-				<Text style={[styles.buttonText, { color: theme.text }]}>{i18n.t("register")}</Text>
+				<Text style={[styles.buttonText, { color: theme.text }]}>
+					{i18n.t("register")}
+				</Text>
 			</TouchableOpacity>
 
 			<TouchableOpacity

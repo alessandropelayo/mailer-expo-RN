@@ -17,6 +17,7 @@ import {
 	AccessRequestsList,
 	AccessRequestsListRef,
 } from "./ThemedAccessRequestList";
+import { AccessRequest } from "@/types/interfaces/interfaces";
 
 const ACCESS_LEVEL_INFO: Record<
 	AccessLevel,
@@ -36,8 +37,10 @@ export function ThemedProfileScreen() {
 	const { isLoading, user, logout } = useAuth();
 	const [error, setError] = useState("");
 	const [isRequesting, setIsRequesting] = useState(false);
-
 	const listRef = useRef<AccessRequestsListRef>(null);
+
+	// Add state to track pending requests
+	const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
 	if (isLoading) {
 		return (
@@ -55,10 +58,8 @@ export function ThemedProfileScreen() {
 
 	const requestAccessLevel = async (reqLevel: AccessLevel) => {
 		if (isRequesting) return;
-
 		setIsRequesting(true);
 		setError("");
-
 		try {
 			const response = await api.post<AuthResponse>("/access/request", {
 				requestedLevel: reqLevel,
@@ -79,11 +80,24 @@ export function ThemedProfileScreen() {
 	const handleLogout = async () => {
 		try {
 			logout();
-			router.replace("/SignIn")
+			router.replace("/SignIn");
 		} catch (err) {
 			setError("An unexpected error occurred");
 		}
-	}
+	};
+
+	// Add callback to update pending request status
+	const handleRequestsUpdate = (requests: AccessRequest[]) => {
+		const currentLevel = user?.accessLevel || "NO_ACCESS";
+		const nextLevel = ACCESS_LEVEL_INFO[currentLevel as AccessLevel].next;
+
+		// Check if there's a pending request for the next level
+		const isPending = requests.some(
+			(request) =>
+				request.status === "PENDING" && request.requestedLevel === nextLevel
+		);
+		setHasPendingRequest(isPending);
+	};
 
 	const renderHeader = () => (
 		<ThemedView style={styles.header}>
@@ -119,19 +133,16 @@ export function ThemedProfileScreen() {
 					<ThemedText style={styles.label}>Email</ThemedText>
 					<ThemedText style={styles.value}>{user.email || "N/A"}</ThemedText>
 				</ThemedView>
-
 				<ThemedView style={styles.infoRow}>
 					<ThemedText style={styles.label}>Role</ThemedText>
 					<ThemedText style={styles.value}>{user.role || "N/A"}</ThemedText>
 				</ThemedView>
-
 				<ThemedView style={styles.infoRow}>
 					<ThemedText style={styles.label}>Access Level</ThemedText>
 					<ThemedText style={styles.value}>
 						{ACCESS_LEVEL_INFO[currentLevel as AccessLevel].label}
 					</ThemedText>
 				</ThemedView>
-
 				<TouchableOpacity
 					style={[styles.button, isRequesting && styles.buttonDisabled]}
 					onPress={() => handleLogout()}
@@ -139,8 +150,7 @@ export function ThemedProfileScreen() {
 				>
 					<ThemedText style={styles.buttonText}>Logout</ThemedText>
 				</TouchableOpacity>
-
-				{nextLevel && (
+				{nextLevel && !hasPendingRequest && (
 					<TouchableOpacity
 						style={[styles.button, isRequesting && styles.buttonDisabled]}
 						onPress={() => requestAccessLevel(nextLevel)}
@@ -153,8 +163,10 @@ export function ThemedProfileScreen() {
 						</ThemedText>
 					</TouchableOpacity>
 				)}
-
-				<AccessRequestsList ref={listRef} />
+				<AccessRequestsList
+					ref={listRef}
+					onRequestsUpdate={handleRequestsUpdate}
+				/>
 			</ThemedView>
 		);
 	};

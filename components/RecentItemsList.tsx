@@ -17,20 +17,23 @@ import { ShippingCarrier } from "@/types/enums/enums";
 import i18n from "@/hooks/localization";
 import { getValueFor } from "@/hooks/accessStorage";
 import ZoomableImage from "./ZoomableImage";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "expo-router";
 
 export type RecentPackagesProps = ViewProps & {};
 
 export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 	const [packages, setPackages] = useState<Package[]>([]); // Array to store fetched packages
-	const [isLoading, setIsLoading] = useState(true);
+	const [isRecentsLoading, setIsLoading] = useState(true);
 	const [hasMore, setHasMore] = useState(true);
 	const [after, setAfter] = useState(String);
 	const [count, setCount] = useState(0);
 	const [limit, setLimit] = useState(10);
-	const [API_KEY, setAPI_KEY] = useState("");
+
+	const { isLoading, user } = useAuth();
 
 	const fetchData = () => {
-		if (hasMore) {
+		if (hasMore && user?.accessLevel !== "NO_ACCESS") {
 			getPackageList(count, limit, after);
 		}
 	};
@@ -67,7 +70,7 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 	};
 
 	const fetchNextPage = () => {
-		if (after == null) {
+		if (after == null || isRecentsLoading) {
 			// End of data.
 			return;
 		}
@@ -91,17 +94,17 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 		);
 	};
 
-	const getAPI_KEY = async () => {
-		const data = (await getValueFor("API_KEY")) || "";
-		setAPI_KEY((prevState) => data);
-	};
-
 	useEffect(() => {
-		fetchData();
-		getAPI_KEY();
-	}, []);
+		// Only fetch data if the user has finished loading AND has access
+		if (!isLoading && user?.accessLevel !== "NO_ACCESS") {
+			fetchData();
+		} else {
+			// If user has no access, set loading to false to show the setup profile message
+			setIsLoading(false);
+		}
+	}, [user]);
 
-	if (isLoading) {
+	if (isLoading || isRecentsLoading) {
 		return (
 			<ThemedView
 				style={{
@@ -116,6 +119,47 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 					size={"large"}
 					color={"white"}
 				/>
+			</ThemedView>
+		);
+	}
+
+	if (user?.accessLevel === "NO_ACCESS") {
+		return (
+			<ThemedView
+				style={{
+					alignContent: "center",
+					alignItems: "center",
+					paddingTop: 10,
+					height: "100%",
+					width: "100%",
+				}}
+			>
+				<ThemedText style={{ paddingBottom: 10 }}>
+					Currently unauthorized to access packages.
+				</ThemedText>
+
+				<ThemedText style={{ paddingBottom: 10 }}>
+					Contact the System Administrator for approval.
+				</ThemedText>
+
+				<Link href={"/Profile"}>
+					<ThemedView
+						style={{
+							backgroundColor: "#4a9eff",
+							paddingVertical: 12,
+							paddingHorizontal: 24,
+							borderRadius: 8,
+							minWidth: 200,
+							alignItems: "center",
+						}}
+					>
+						<ThemedText
+							style={{ color: "white", fontSize: 16, fontWeight: "600" }}
+						>
+							Go to Profile
+						</ThemedText>
+					</ThemedView>
+				</Link>
 			</ThemedView>
 		);
 	}
@@ -149,7 +193,6 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 						style={{
 							justifyContent: "flex-start",
 						}}
-						API_KEY={API_KEY}
 					/>
 				</ThemedView>
 			)}
@@ -158,7 +201,7 @@ export function RecentPackages({ style, ...otherProps }: RecentPackagesProps) {
 			)}
 			keyExtractor={(item, index) => item.trackingId + index.toString()}
 			refreshControl={
-				<RefreshControl refreshing={isLoading} onRefresh={refreshPage} />
+				<RefreshControl refreshing={isRecentsLoading} onRefresh={refreshPage} />
 			}
 			onEndReached={fetchNextPage}
 			onEndReachedThreshold={0.5}

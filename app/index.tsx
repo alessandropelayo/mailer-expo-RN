@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "@/context/theme";
 import { useRouter } from "expo-router";
@@ -7,6 +7,7 @@ import { AuthResponse, User } from "@/types/auth";
 import api from "@/utils/axios";
 import { storeAuthData } from "@/utils/auth";
 import axios from "axios";
+import { ThemedText } from "@/components/ThemedText";
 
 export default function IndexScreen() {
 	const router = useRouter();
@@ -46,16 +47,18 @@ export default function IndexScreen() {
 	return (
 		<View style={[styles.container, { backgroundColor: theme.background }]}>
 			<Text style={[styles.title, { color: theme.text }]}>Welcome</Text>
-			<Button
-				title="Sign In"
+			<TouchableOpacity
+				style={[styles.button, { backgroundColor: theme.foreground }]}
 				onPress={() => router.navigate("/(auth)/SignIn")}
-				color={theme.foreground}
-			/>
-			<Button
-				title="Register"
+			>
+				<ThemedText style={styles.buttonText}>Sign In</ThemedText>
+			</TouchableOpacity>
+			<TouchableOpacity
+				style={[styles.button, { backgroundColor: theme.foreground }]}
 				onPress={() => router.navigate("/(auth)/Register")}
-				color={theme.foreground}
-			/>
+			>
+				<ThemedText style={styles.buttonText}>Register</ThemedText>
+			</TouchableOpacity>
 		</View>
 	);
 }
@@ -71,5 +74,22 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		marginBottom: 20,
 		fontWeight: "bold",
+	},
+	button: {
+		backgroundColor: "#4a9eff",
+		paddingVertical: 12,
+		paddingHorizontal: 24,
+		borderRadius: 8,
+		marginTop: 16,
+		minWidth: 200,
+		alignItems: "center",
+	},
+	buttonDisabled: {
+		opacity: 0.6,
+	},
+	buttonText: {
+		color: "white",
+		fontSize: 16,
+		fontWeight: "600",
 	},
 });
